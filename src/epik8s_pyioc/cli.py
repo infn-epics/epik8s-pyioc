@@ -9,7 +9,7 @@ import sys
 
 from .instance import InstanceError, load_instance
 from .runner import find_spec, installed_specs
-from .scaffold import scaffold
+from .scaffold import ScaffoldError, scaffold
 from .spec import SpecError, load_spec
 from . import tools
 
@@ -57,6 +57,8 @@ def main(argv: list[str] | None = None) -> int:
     cmd.add_argument("--package", help="Python package name")
     cmd.add_argument("--image", help="container image repository")
     cmd.add_argument("--devgroup", help="epik8s devgroup")
+    cmd.add_argument("--from", dest="description", metavar="YAML",
+                     help="device description (name, transport, pvs, ...); see epik8s_pyioc.scaffold")
     args = parser.parse_args(argv)
 
     try:
@@ -65,8 +67,13 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"{name}\t{spec.entrypoint}\t{spec.description}")
             return 0
         if args.command == "init":
+            description = None
+            if args.description:
+                import yaml
+
+                description = yaml.safe_load(Path(args.description).read_text()) or {}
             created = scaffold(args.name, Path(args.dir or args.name), args.package,
-                               args.image or "", args.devgroup or "")
+                               args.image or "", args.devgroup or "", description)
             print("\n".join(str(path) for path in created))
             return 0
         spec = _spec(args)
@@ -98,6 +105,10 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"{path}: {checked} {spec.name} IOC(s), {len(errors)} error(s)")
                 failed |= bool(errors)
             return 1 if failed else 0
+    except ScaffoldError as exc:
+        for error in exc.errors:
+            print(f"error: {error}", file=sys.stderr)
+        return 2
     except (SpecError, FileExistsError, ValueError) as exc:
         if isinstance(exc, InstanceError):
             for error in exc.errors:

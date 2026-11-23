@@ -146,8 +146,58 @@ def test_scaffold_produces_valid_project(tmp_path, capsys):
     spec_file = tmp_path / "mydev" / "src" / "mydev_ioc" / "pyioc.yaml"
     assert cli(["check", "--spec", str(spec_file)]) == 0
     assert cli(["render", "--spec", str(spec_file), str(tmp_path / "mydev" / "example.yaml")]) == 0
-    out = capsys.readouterr().out
-    assert "TEST:MYDEV:DEV01:" in out
-    compile((tmp_path / "mydev" / "src" / "mydev_ioc" / "ioc.py").read_text(), "ioc.py", "exec")
+    assert "TEST:MYDEV:DEV01:" in capsys.readouterr().out
+    for path in (tmp_path / "mydev").rglob("*.py"):
+        compile(path.read_text(), str(path), "exec")
     with pytest.raises(FileExistsError):
         scaffold("mydev", tmp_path / "mydev")
+
+
+def test_render_project_from_a_description():
+    from epik8s_pyioc.scaffold import EXAMPLE, render_project
+
+    project = render_project(EXAMPLE)
+    assert project["self_check"]["ok"], project["self_check"]
+    files = project["files"]
+    assert {"pyproject.toml", "Dockerfile", ".github/workflows/ci.yml", "example.yaml",
+            "src/tpg366_ioc/pyioc.yaml", "src/tpg366_ioc/ioc.py", "src/tpg366_ioc/driver.py",
+            "tests/test_ioc.py"} <= set(files)
+    ioc = files["src/tpg366_ioc/ioc.py"]
+    assert "enum_index" in ioc and "np.full(length, np.nan)" in ioc      # the lessons are in
+    assert "name='Pressure'" in ioc and "name='Reset'" in ioc
+    assert "TcpDriver" in files["src/tpg366_ioc/driver.py"]
+    spec = yaml.safe_load(files["src/tpg366_ioc/pyioc.yaml"])
+    assert spec["name"] == "tpg366" and spec["entrypoint"] == "tpg366_ioc.ioc:run"
+    assert spec["devices"]["parameters"]["port"]["default"] == 8000
+
+
+@pytest.mark.parametrize("change, message", [
+    ({"name": "Bad Name"}, "name"),
+    ({"pvs": []}, "pvs"),
+    ({"pvs": [{"name": "X", "type": "complex"}]}, "type"),
+    ({"pvs": [{"name": "X", "type": "enum", "choices": ["only"]}]}, "choices"),
+    ({"pvs": [{"name": "X", "type": "float", "access": "cmd"}]}, "cmd"),
+    ({"pvs": [{"name": "X", "type": "waveform"}]}, "length"),
+    ({"pvs": [{"name": "Connected"}]}, "generated"),
+    ({"pvs": [{"name": "A"}, {"name": "a"}]}, "duplicate"),
+    ({"parameters": {"template": "string"}}, "reserved"),
+    ({"transport": "carrier-pigeon"}, "transport"),
+    ({"colour": "blue"}, "unknown field"),
+])
+def test_bad_descriptions_report_every_problem(change, message):
+    from epik8s_pyioc.scaffold import EXAMPLE, ScaffoldError, render_project
+
+    with pytest.raises(ScaffoldError) as info:
+        render_project({**EXAMPLE, **change})
+    assert any(message in e for e in info.value.errors), info.value.errors
+
+
+def test_guide_ships_every_document():
+    from epik8s_pyioc.guide import guide
+
+    docs = guide()
+    titles = list(docs)
+    assert titles[0].startswith("How to")
+    assert any("specification" in t for t in titles) and any("Pitfalls" in t for t in titles)
+    assert all(text.strip() for text in docs.values())
+    assert "enum_index" in next(text for t, text in docs.items() if "Pitfalls" in t)

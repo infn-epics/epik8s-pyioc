@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "epik8s-pyioc"
-version = "0.1.0"
+version = "0.2.0"
 description = "Specification and runtime for containerized Python EPICS IOCs configured from epik8s values.yaml"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -19,6 +19,9 @@ pyioc-run = "epik8s_pyioc.runner:main_run"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+epik8s_pyioc = ["docs/*.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
