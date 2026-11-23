@@ -48,7 +48,7 @@ engineer serves them through `ioc_guide`.
 ## Quick start
 
 ```sh
-pip install "epik8s-pyioc @ https://github.com/infn-epics/epik8s-pyioc/archive/refs/tags/v0.2.0.tar.gz"
+pip install "epik8s-pyioc @ https://github.com/infn-epics/epik8s-pyioc/archive/refs/tags/v0.2.1.tar.gz"
 pyioc init mydev            # or: pyioc init mydev --from description.yaml
 cd mydev && pip install -e '.[test]' && pytest
 ```

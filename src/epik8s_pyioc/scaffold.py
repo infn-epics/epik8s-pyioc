@@ -37,7 +37,7 @@ import re
 import textwrap
 from typing import Any, Mapping
 
-PYIOC_VERSION = "0.2.0"
+PYIOC_VERSION = "0.2.1"
 PYIOC_REQUIREMENT = (f"epik8s-pyioc @ https://github.com/infn-epics/epik8s-pyioc/archive/refs/tags/"
                      f"v{PYIOC_VERSION}.tar.gz")
 

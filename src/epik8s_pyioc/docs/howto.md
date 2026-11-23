@@ -1,5 +1,20 @@
 # How to: a new Python IOC, from nothing to a beamline
 
+## 0. Is a Python IOC the right kind?
+
+epik8s runs three kinds of IOC. Pick by what the IOC does:
+
+| The IOC... | Use | Configured by |
+|---|---|---|
+| drives hardware that has an EPICS driver (asyn, StreamDevice, modbus, areaDetector, motor) | an **ibek template** in the infn-epics-ioc image | `template:` + `devtype`, entity models in ibek-support-infn |
+| drives hardware best reached from Python: a vendor library for Python or .NET, a protocol simpler to write in Python | an **epik8s-pyioc** IOC in its own image (this guide) | `devtype` + `start: pyioc-run`, parameters in values.yaml checked against `pyioc.yaml` |
+| adds logic over PVs that already exist: interlocks, sequences, monitoring, derived values | an **iocmng** soft IOC ([epik8s-softioc-mng](https://github.com/infn-epics/epik8s-softioc-mng)) | an entry under `softiocs:`, and a `config.yaml` of inputs, rules and outputs in the beamline repository |
+
+An epik8s-pyioc IOC owns a device. A task that only reads other IOCs' PVs and writes others
+belongs in iocmng: its declarative rules need no code, run in a shared image, and are
+reviewed as configuration. A device IOC built as an iocmng task, or an interlock built as a
+device IOC, works but is the wrong shape to maintain.
+
 ## 1. Describe the device and generate the project
 
 ```yaml
