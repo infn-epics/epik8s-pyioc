@@ -1,7 +1,7 @@
 # Tools
 
 ```sh
-pyioc init NAME [--from DESCRIPTION.yaml]   # a new IOC project (see the how-to)
+pyioc init NAME [--from DESCRIPTION.yaml | --box]   # a new device IOC project or box (see the how-to)
 pyioc check   -s src/pkg/pyioc.yaml         # validate the spec
 pyioc docs    -s ...                        # Markdown parameter tables
 pyioc schema  -s ... [--fragment]           # JSON Schema of an entry (or an if-devtype clause for a beamline schema)
@@ -23,7 +23,7 @@ mistakes it can see: a `template:` key (which sends the pod down the ibek branch
 
 ```python
 from epik8s_pyioc import load_spec, resolve_instance
-from epik8s_pyioc.scaffold import render_project       # {path: text} plus a self-check
+from epik8s_pyioc.scaffold import render_project       # {kind, files: {path: text}, self_check}
 from epik8s_pyioc.tools import json_schema, ioc_defaults, markdown, validate_values
 from epik8s_pyioc.guide import guide                    # these documents, by title
 ```
