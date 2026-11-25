@@ -46,8 +46,9 @@ from typing import Any, Mapping
 PYIOC_VERSION = "0.3.0"
 PYIOC_REQUIREMENT = (f"epik8s-pyioc @ https://github.com/infn-epics/epik8s-pyioc/archive/refs/tags/"
                      f"v{PYIOC_VERSION}.tar.gz")
-# the first iocmng with the driver source and the asyncio dispatcher
-IOCMNG_VERSION = "2.8.0"
+# the first iocmng with the driver source, its hooks and the asyncio dispatcher
+# (2.8.0 lacks the hooks: Connected and LastError never update)
+IOCMNG_VERSION = "2.8.1"
 IOCMNG_REQUIREMENT = f"iocmng>={IOCMNG_VERSION}"
 BASE_IMAGE = f"ghcr.io/infn-epics/epik8s-softioc-mng:{IOCMNG_VERSION}"
 

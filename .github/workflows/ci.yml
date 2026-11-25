@@ -11,8 +11,8 @@ permissions:
   contents: read
 
 env:
-  # Generated projects need iocmng 2.8.0 or later (driver source, asyncio dispatcher).
-  IOCMNG: "iocmng>=2.8.0"
+  # Generated projects need iocmng 2.8.1 or later (driver source and hooks).
+  IOCMNG: "iocmng>=2.8.1"
 
 jobs:
   test:
