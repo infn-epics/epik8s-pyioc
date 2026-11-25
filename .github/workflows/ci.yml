@@ -11,9 +11,8 @@ permissions:
   contents: read
 
 env:
-  # Generated projects need iocmng 2.8.0 (driver source). Until it is on PyPI, take it from
-  # the iocmng branch; after the release, set this to "iocmng>=2.8.0".
-  IOCMNG: "iocmng @ git+https://github.com/infn-epics/epik8s-softioc-mng@feat/driver-source"
+  # Generated projects need iocmng 2.8.0 or later (driver source, asyncio dispatcher).
+  IOCMNG: "iocmng>=2.8.0"
 
 jobs:
   test:
