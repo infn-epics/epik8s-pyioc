@@ -10,6 +10,11 @@ on:
 permissions:
   contents: read
 
+env:
+  # Generated projects need iocmng 2.8.0 (driver source). Until it is on PyPI, take it from
+  # the iocmng branch; after the release, set this to "iocmng>=2.8.0".
+  IOCMNG: "iocmng @ git+https://github.com/infn-epics/epik8s-softioc-mng@feat/driver-source"
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -25,5 +30,7 @@ jobs:
         run: |
           cd "$RUNNER_TEMP"
           pyioc init ci-demo
+          pip install "$IOCMNG"
+          # --no-deps: epik8s-pyioc is the checkout installed above, not the release tag
           pip install --no-deps -e ci-demo
           cd ci-demo && pytest -q

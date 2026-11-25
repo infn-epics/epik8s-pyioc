@@ -51,14 +51,17 @@ def main(argv: list[str] | None = None) -> int:
     cmd = add("validate", "validate the IOCs of this devtype in a beamline values.yaml")
     cmd.add_argument("values", nargs="+")
     add("list", "list installed Python IOCs", spec=False)
-    cmd = add("init", "create a new Python IOC project", spec=False)
-    cmd.add_argument("name", help="devtype of the new IOC")
+    cmd = add("init", "create a new Python IOC project, or a box", spec=False)
+    cmd.add_argument("name", help="devtype of the new IOC, or name of the box")
     cmd.add_argument("--dir", default=None, help="target directory (default: ./<name>)")
     cmd.add_argument("--package", help="Python package name")
     cmd.add_argument("--image", help="container image repository")
     cmd.add_argument("--devgroup", help="epik8s devgroup")
     cmd.add_argument("--from", dest="description", metavar="YAML",
-                     help="device description (name, transport, pvs, ...); see epik8s_pyioc.scaffold")
+                     help="description (name, transport, pvs, rules, ...): a device IOC if a PV has "
+                          "source: driver or a transport is given, else a box; see epik8s_pyioc.scaffold")
+    cmd.add_argument("--box", action="store_true",
+                     help="without --from: start from the example box (links, an expression, a rule)")
     args = parser.parse_args(argv)
 
     try:
@@ -73,7 +76,7 @@ def main(argv: list[str] | None = None) -> int:
 
                 description = yaml.safe_load(Path(args.description).read_text()) or {}
             created = scaffold(args.name, Path(args.dir or args.name), args.package,
-                               args.image or "", args.devgroup or "", description)
+                               args.image or "", args.devgroup or "", description, box=args.box)
             print("\n".join(str(path) for path in created))
             return 0
         spec = _spec(args)

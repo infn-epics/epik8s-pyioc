@@ -25,8 +25,9 @@ So a Python IOC entry must:
 
 - select its defaults with **`devtype`**, never `template`;
 - start with **`start: pyioc-run`** (in `iocDefaults`);
-- say **`pva: false`** if it serves only Channel Access (caproto IOCs do).
-  epik8s-chart then gives the pod a static IP, as for other CA-only IOCs.
+- say **`pva: false`** if it serves only Channel Access (the caproto IOCs of pyioc 0.2.x
+  do; IOCs generated on iocmng serve CA and PVA). epik8s-chart then gives the pod a static
+  IP, as for other CA-only IOCs.
 
 `pyioc defaults` prints that block, and `pyioc validate` checks a beamline for all three.
 

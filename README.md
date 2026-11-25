@@ -10,6 +10,12 @@
 3. **`pyioc`**, tooling derived from the spec: a project generator, checks, JSON Schema,
    docs, the `iocDefaults` block, and validation of a beamline `values.yaml`.
 
+`pyioc init` generates IOCs that run on [iocmng](https://github.com/infn-epics/epik8s-softioc-mng)
+(pythonSoftIOC, Channel Access and PV Access) from one description where every PV says where
+its value comes from: a device driver, another PV, an expression, or operators and rules.
+With a driver it makes a **device IOC** in its own image; without one, a **box**: logic over
+existing PVs, run in the shared epik8s-softioc-mng image as a `softiocs:` entry.
+
 An IOC is then deployed from the beamline `values.yaml` alone, with no
 `config/iocs/<ioc>` directory, no `start.sh`, no `template` and no ibek:
 
@@ -36,10 +42,10 @@ epicsConfiguration:
 
 | Document | Read it for |
 |---|---|
-| [How to](src/epik8s_pyioc/docs/howto.md) | a new IOC from a device description to a beamline: `pyioc init`, the driver, publishing, deploying |
+| [How to](src/epik8s_pyioc/docs/howto.md) | a new device IOC or box from a description to a beamline: `pyioc init`, the driver, rules, publishing, deploying |
 | [Specification](src/epik8s_pyioc/docs/specification.md) | the `pyioc.yaml` format, how an IOC entry is resolved, reserved keys, PV naming for screens |
 | [Runtime contract](src/epik8s_pyioc/docs/runtime.md) | how epik8s-chart and ioc-chart start the IOC, what the image must do, vendor libraries, registries |
-| [Pitfalls](src/epik8s_pyioc/docs/pitfalls.md) | the caproto/Phoebus traps found in deployed IOCs, and their fixes |
+| [Pitfalls](src/epik8s_pyioc/docs/pitfalls.md) | the Phoebus, caproto and iocmng traps found in deployed IOCs, and their fixes |
 | [Tools](src/epik8s_pyioc/docs/tools.md) | the `pyioc` commands and the library API |
 
 The same documents ship with the package (`epik8s_pyioc.guide.guide()`), and ARGUS's IOC
@@ -48,8 +54,8 @@ engineer serves them through `ioc_guide`.
 ## Quick start
 
 ```sh
-pip install "epik8s-pyioc @ https://github.com/infn-epics/epik8s-pyioc/archive/refs/tags/v0.2.1.tar.gz"
-pyioc init mydev            # or: pyioc init mydev --from description.yaml
+pip install "epik8s-pyioc @ https://github.com/infn-epics/epik8s-pyioc/archive/refs/tags/v0.3.0.tar.gz"
+pyioc init mydev            # or: pyioc init mydev --from description.yaml, pyioc init mybox --box
 cd mydev && pip install -e '.[test]' && pytest
 ```
 
